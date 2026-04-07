@@ -1,0 +1,141 @@
+
+index_html = '''{% extends "base.html" %}
+
+{% block title %}Главная - {{ site_name }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container">
+        <div class="hero-content">
+            <h1>Добро пожаловать в ТашТЛИ</h1>
+            <p class="hero-subtitle">Портал для русскоязычных студентов Ташкентского института текстильной и лёгкой промышленности</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('schedule') }}" class="btn btn-primary">
+                    <i class="fas fa-calendar-alt"></i> Расписание
+                </a>
+                <a href="{{ url_for('files') }}" class="btn btn-secondary">
+                    <i class="fas fa-file-alt"></i> Конспекты
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+    <div class="container">
+        <h2 class="section-title">Возможности портала</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h3>Расписание</h3>
+                <p>Просматривайте актуальное расписание занятий для всех групп</p>
+                <a href="{{ url_for('schedule') }}" class="feature-link">Перейти <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <h3>Конспекты</h3>
+                <p>Делитесь учебными материалами и скачивайте конспекты</p>
+                <a href="{{ url_for('files') }}" class="feature-link">Перейти <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <h3>Объявления</h3>
+                <p>Продажа, покупка, поиск напарников и подработка</p>
+                <a href="{{ url_for('announcements') }}" class="feature-link">Перейти <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <h3>Новости</h3>
+                <p>Будьте в курсе последних событий института</p>
+                <a href="{{ url_for('news_list') }}" class="feature-link">Перейти <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Latest News Section -->
+<section class="latest-news">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Последние новости</h2>
+            <a href="{{ url_for('news_list') }}" class="view-all">Все новости <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="news-grid">
+            {% for item in news %}
+            <article class="news-card">
+                <div class="news-date">
+                    <span class="day">{{ item.created_at.day }}</span>
+                    <span class="month">{{ item.created_at.strftime('%b') }}</span>
+                </div>
+                <div class="news-content">
+                    <h3><a href="{{ url_for('news_detail', id=item.id) }}">{{ item.title }}</a></h3>
+                    <p>{{ item.content[:150] }}{% if item.content|length > 150 %}...{% endif %}</p>
+                    <div class="news-meta">
+                        <span><i class="fas fa-eye"></i> {{ item.views }}</span>
+                        <span><i class="fas fa-user"></i> {{ item.author.username }}</span>
+                    </div>
+                </div>
+            </article>
+            {% else %}
+            <p class="no-content">Новостей пока нет</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Announcements Preview -->
+<section class="announcements-preview">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Последние объявления</h2>
+            <a href="{{ url_for('announcements') }}" class="view-all">Все объявления <i class="fas fa-arrow-right"></i></a>
+        </div>
+        
+        <div class="announcements-list">
+            {% for ann in announcements[:3] %}
+            <div class="announcement-item">
+                <span class="badge badge-{{ ann.category|lower }}">{{ ann.category }}</span>
+                <h4>{{ ann.title }}</h4>
+                <p>{{ ann.content[:100] }}{% if ann.content|length > 100 %}...{% endif %}</p>
+                <small><i class="fas fa-clock"></i> {{ ann.created_at.strftime('%d.%m.%Y') }}</small>
+            </div>
+            {% else %}
+            <p class="no-content">Объявлений пока нет</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Присоединяйтесь к сообществу</h2>
+            <p>Зарегистрируйтесь, чтобы получить доступ ко всем возможностям портала</p>
+            {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('register') }}" class="btn btn-large btn-white">Создать аккаунт</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}'''
+
+with open(f"{project_name}/templates/index.html", "w", encoding="utf-8") as f:
+    f.write(index_html)
+
+print("✅ index.html создан")
