@@ -1,0 +1,130 @@
+
+announcements_html = '''{% extends "base.html" %}
+
+{% block title %}Объявления - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-bullhorn"></i> Объявления</h1>
+        <p>Объявления от студентов: продажа, покупка, поиск напарников</p>
+    </div>
+</section>
+
+<section class="announcements-section">
+    <div class="container">
+        <div class="announcements-toolbar">
+            <div class="category-filters">
+                <a href="{{ url_for('announcements') }}" class="btn {% if not selected_category %}btn-primary{% else %}btn-secondary{% endif %}">
+                    Все
+                </a>
+                {% for cat in categories %}
+                <a href="{{ url_for('announcements', category=cat) }}" 
+                   class="btn {% if selected_category == cat %}btn-primary{% else %}btn-secondary{% endif %}">
+                    {{ cat }}
+                </a>
+                {% endfor %}
+            </div>
+            
+            {% if current_user.is_authenticated %}
+            <button class="btn btn-success" onclick="openModal('addAnnouncementModal')">
+                <i class="fas fa-plus"></i> Добавить объявление
+            </button>
+            {% endif %}
+        </div>
+        
+        <div class="announcements-grid">
+            {% for ann in announcements %}
+            <div class="announcement-card">
+                <div class="announcement-badge badge-{{ ann.category|lower|replace(' ', '-') }}">
+                    {{ ann.category }}
+                </div>
+                <div class="announcement-content">
+                    <h3>{{ ann.title }}</h3>
+                    <p class="announcement-text">{{ ann.content }}</p>
+                    
+                    {% if ann.contact_info %}
+                    <div class="contact-info">
+                        <i class="fas fa-address-card"></i>
+                        <span>{{ ann.contact_info }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="announcement-meta">
+                        <span class="author">
+                            <i class="fas fa-user"></i> {{ ann.user.username }}
+                        </span>
+                        <span class="date">
+                            <i class="fas fa-clock"></i> {{ ann.created_at.strftime('%d.%m.%Y') }}
+                        </span>
+                    </div>
+                </div>
+                
+                {% if current_user.is_admin or current_user.id == ann.user_id %}
+                <div class="announcement-actions">
+                    <a href="{{ url_for('delete_announcement', id=ann.id) }}" 
+                       class="btn-icon btn-danger" 
+                       onclick="return confirm('Удалить объявление?')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="empty-state wide">
+                <i class="fas fa-bullhorn"></i>
+                <h3>Объявлений пока нет</h3>
+                <p>Будьте первым, кто разместит объявление!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Модальное окно добавления объявления -->
+{% if current_user.is_authenticated %}
+<div id="addAnnouncementModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-plus-circle"></i> Новое объявление</h2>
+            <button class="close" onclick="closeModal('addAnnouncementModal')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('add_announcement') }}">
+            <div class="form-group">
+                <label>Категория</label>
+                <select name="category" required>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Заголовок</label>
+                <input type="text" name="title" placeholder="Краткое название" required maxlength="200">
+            </div>
+            
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea name="content" rows="5" placeholder="Подробное описание..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Контактная информация</label>
+                <input type="text" name="contact_info" placeholder="Телефон, Telegram, Email...">
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addAnnouncementModal')">Отмена</button>
+                <button type="submit" class="btn btn-success">Опубликовать</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}'''
+
+with open(f"{project_name}/templates/announcements.html", "w", encoding="utf-8") as f:
+    f.write(announcements_html)
+
+print("✅ announcements.html создан")
