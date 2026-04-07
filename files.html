@@ -1,0 +1,146 @@
+
+files_html = '''{% extends "base.html" %}
+
+{% block title %}Конспекты - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-file-alt"></i> Конспекты и файлы</h1>
+        <p>Учебные материалы и конспекты лекций</p>
+    </div>
+</section>
+
+<section class="files-section">
+    <div class="container">
+        <div class="files-layout">
+            <!-- Сайдбар с фильтрами -->
+            <aside class="files-sidebar">
+                <div class="filter-card">
+                    <h3><i class="fas fa-filter"></i> Фильтры</h3>
+                    <form method="GET" action="{{ url_for('files') }}">
+                        <div class="form-group">
+                            <label>Курс</label>
+                            <select name="course">
+                                <option value="">Все курсы</option>
+                                {% for course in courses %}
+                                <option value="{{ course[0] }}" {% if selected_course == course[0] %}selected{% endif %}>
+                                    {{ course[0] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Предмет</label>
+                            <input type="text" name="subject" value="{{ selected_subject }}" placeholder="Название предмета">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-search"></i> Применить
+                        </button>
+                        <a href="{{ url_for('files') }}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-times"></i> Сбросить
+                        </a>
+                    </form>
+                </div>
+                
+                {% if current_user.is_authenticated %}
+                <div class="upload-card">
+                    <h3><i class="fas fa-upload"></i> Загрузить файл</h3>
+                    <form method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <input type="file" name="file" accept=".pdf,.docx,.doc,.png,.jpg,.jpeg" required>
+                            <small class="file-types">PDF, DOCX, PNG (макс. 16MB)</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="text" name="course" placeholder="Курс (например: 2 курс)" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="text" name="subject" placeholder="Предмет" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <textarea name="description" placeholder="Описание файла" rows="3"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success btn-block">
+                            <i class="fas fa-upload"></i> Загрузить
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="login-prompt">
+                    <p><i class="fas fa-lock"></i> Для загрузки файлов необходимо <a href="{{ url_for('login') }}">войти</a></p>
+                </div>
+                {% endif %}
+            </aside>
+            
+            <!-- Список файлов -->
+            <div class="files-content">
+                <div class="files-header">
+                    <h2>Файлы {% if selected_course %}({{ selected_course }}){% endif %}</h2>
+                    <span class="files-count">{{ files|length }} файлов</span>
+                </div>
+                
+                {% if files %}
+                <div class="files-grid">
+                    {% for file in files %}
+                    <div class="file-card">
+                        <div class="file-icon">
+                            {% if file.file_type == 'pdf' %}
+                            <i class="fas fa-file-pdf"></i>
+                            {% elif file.file_type in ['docx', 'doc'] %}
+                            <i class="fas fa-file-word"></i>
+                            {% else %}
+                            <i class="fas fa-file-image"></i>
+                            {% endif %}
+                        </div>
+                        <div class="file-info">
+                            <h4 class="file-name" title="{{ file.original_name }}">{{ file.original_name }}</h4>
+                            <div class="file-meta">
+                                <span class="file-subject"><i class="fas fa-book"></i> {{ file.subject }}</span>
+                                <span class="file-course"><i class="fas fa-graduation-cap"></i> {{ file.course }}</span>
+                            </div>
+                            {% if file.description %}
+                            <p class="file-description">{{ file.description[:100] }}{% if file.description|length > 100 %}...{% endif %}</p>
+                            {% endif %}
+                            <div class="file-footer">
+                                <span class="file-date">{{ file.uploaded_at.strftime('%d.%m.%Y') }}</span>
+                                <span class="file-downloads"><i class="fas fa-download"></i> {{ file.download_count }}</span>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <a href="{{ url_for('download_file', id=file.id) }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-download"></i> Скачать
+                            </a>
+                            {% if current_user.is_admin %}
+                            <a href="{{ url_for('delete_file', id=file.id) }}" 
+                               class="btn btn-danger btn-sm" 
+                               onclick="return confirm('Удалить этот файл?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <h3>Файлы не найдены</h3>
+                    <p>Попробуйте изменить фильтры или загрузите первый файл</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}'''
+
+with open(f"{project_name}/templates/files.html", "w", encoding="utf-8") as f:
+    f.write(files_html)
+
+print("✅ files.html создан")
