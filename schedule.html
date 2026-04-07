@@ -1,0 +1,150 @@
+
+schedule_html = '''{% extends "base.html" %}
+
+{% block title %}Расписание - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-calendar-alt"></i> Расписание занятий</h1>
+        <p>Актуальное расписание для всех групп</p>
+    </div>
+</section>
+
+<section class="schedule-section">
+    <div class="container">
+        <!-- Выбор группы -->
+        <div class="group-selector">
+            <label for="groupSelect"><i class="fas fa-users"></i> Выберите группу:</label>
+            <select id="groupSelect" onchange="changeGroup(this.value)">
+                {% for group in groups %}
+                <option value="{{ group }}" {% if group == selected_group %}selected{% endif %}>{{ group }}</option>
+                {% endfor %}
+            </select>
+            
+            {% if current_user.is_admin %}
+            <button class="btn btn-primary" onclick="openModal('addScheduleModal')">
+                <i class="fas fa-plus"></i> Добавить занятие
+            </button>
+            {% endif %}
+        </div>
+
+        <!-- Таблица расписания -->
+        <div class="schedule-container">
+            {% for day in days %}
+            <div class="schedule-day">
+                <h3 class="day-header">{{ day }}</h3>
+                
+                {% if schedule_data[day] %}
+                <div class="lessons-list">
+                    {% for lesson in schedule_data[day] %}
+                    <div class="lesson-card">
+                        <div class="lesson-time">
+                            <span class="time-start">{{ lesson.time_start }}</span>
+                            <span class="time-separator">-</span>
+                            <span class="time-end">{{ lesson.time_end }}</span>
+                        </div>
+                        <div class="lesson-info">
+                            <h4 class="lesson-subject">{{ lesson.subject }}</h4>
+                            {% if lesson.teacher %}
+                            <p class="lesson-teacher"><i class="fas fa-chalkboard-teacher"></i> {{ lesson.teacher }}</p>
+                            {% endif %}
+                            {% if lesson.room %}
+                            <p class="lesson-room"><i class="fas fa-door-open"></i> Ауд. {{ lesson.room }}</p>
+                            {% endif %}
+                        </div>
+                        {% if current_user.is_admin %}
+                        <div class="lesson-actions">
+                            <a href="{{ url_for('delete_schedule', id=lesson.id) }}" 
+                               class="btn-icon btn-danger" 
+                               onclick="return confirm('Удалить это занятие?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="no-lessons">
+                    <i class="fas fa-coffee"></i>
+                    <p>Занятий нет</p>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Модальное окно добавления расписания (только для админа) -->
+{% if current_user.is_admin %}
+<div id="addScheduleModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-plus-circle"></i> Добавить занятие</h2>
+            <button class="close" onclick="closeModal('addScheduleModal')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('add_schedule') }}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Группа</label>
+                    <input type="text" name="group_name" value="{{ selected_group }}" required>
+                </div>
+                <div class="form-group">
+                    <label>День недели</label>
+                    <select name="day_of_week" required>
+                        {% for day in days %}
+                        <option value="{{ day }}">{{ day }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Время начала</label>
+                    <input type="time" name="time_start" required>
+                </div>
+                <div class="form-group">
+                    <label>Время окончания</label>
+                    <input type="time" name="time_end" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Предмет</label>
+                <input type="text" name="subject" placeholder="Название предмета" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Преподаватель (опционально)</label>
+                    <input type="text" name="teacher" placeholder="ФИО преподавателя">
+                </div>
+                <div class="form-group">
+                    <label>Аудитория (опционально)</label>
+                    <input type="text" name="room" placeholder="Номер аудитории">
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addScheduleModal')">Отмена</button>
+                <button type="submit" class="btn btn-primary">Добавить</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function changeGroup(group) {
+    window.location.href = '{{ url_for('schedule') }}?group=' + encodeURIComponent(group);
+}
+</script>
+{% endblock %}'''
+
+with open(f"{project_name}/templates/schedule.html", "w", encoding="utf-8") as f:
+    f.write(schedule_html)
+
+print("✅ schedule.html создан")
