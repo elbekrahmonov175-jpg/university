@@ -1,0 +1,121 @@
+
+admin_html = '''{% extends "base.html" %}
+
+{% block title %}Админ-панель - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header admin-header">
+    <div class="container">
+        <h1><i class="fas fa-cog"></i> Административная панель</h1>
+        <p>Управление содержимым сайта</p>
+    </div>
+</section>
+
+<section class="admin-section">
+    <div class="container">
+        <!-- Статистика -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon users">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.users }}</h3>
+                    <p>Пользователей</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon files">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.files }}</h3>
+                    <p>Файлов</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon announcements">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.announcements }}</h3>
+                    <p>Объявлений</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon news">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.news }}</h3>
+                    <p>Новостей</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Быстрые действия -->
+        <div class="admin-actions">
+            <h2>Быстрые действия</h2>
+            <div class="actions-grid">
+                <a href="{{ url_for('schedule') }}" class="action-card">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span>Управление расписанием</span>
+                </a>
+                <a href="{{ url_for('files') }}" class="action-card">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Управление файлами</span>
+                </a>
+                <a href="{{ url_for('announcements') }}" class="action-card">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Модерация объявлений</span>
+                </a>
+                <a href="{{ url_for('news_list') }}" class="action-card">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Управление новостями</span>
+                </a>
+                <a href="{{ url_for('gallery') }}" class="action-card">
+                    <i class="fas fa-images"></i>
+                    <span>Управление галереей</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Информация о системе -->
+        <div class="admin-info">
+            <div class="info-card">
+                <h3><i class="fas fa-info-circle"></i> Информация о системе</h3>
+                <ul>
+                    <li><strong>Версия:</strong> 1.0.0</li>
+                    <li><strong>Framework:</strong> Flask</li>
+                    <li><strong>База данных:</strong> SQLite</li>
+                    <li><strong>Режим:</strong> Production</li>
+                </ul>
+            </div>
+            
+            <div class="info-card">
+                <h3><i class="fas fa-shield-alt"></i> Безопасность</h3>
+                <ul>
+                    <li><strong>Аутентификация:</strong> Включена</li>
+                    <li><strong>Защита файлов:</strong> Активна</li>
+                    <li><strong>Хеширование паролей:</strong> Werkzeug</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}'''
+
+with open(f"{project_name}/templates/admin.html", "w", encoding="utf-8") as f:
+    f.write(admin_html)
+
+print("✅ admin.html создан")
+print("\n📋 Все HTML шаблоны созданы:")
+print("  - base.html (базовый шаблон)")
+print("  - index.html (главная)")
+print("  - login.html / register.html (авторизация)")
+print("  - schedule.html (расписание)")
+print("  - files.html (файлы)")
+print("  - announcements.html (объявления)")
+print("  - news.html / news_detail.html (новости)")
+print("  - gallery.html (галерея)")
+print("  - admin.html (админ-панель)")
