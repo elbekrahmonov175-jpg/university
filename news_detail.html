@@ -1,0 +1,57 @@
+'''{% extends "base.html" %}
+
+{% block title %}{{ news.title }} - {{ site_name }}{% endblock %}
+
+{% block content %}
+<article class="news-detail">
+    <div class="container">
+        <div class="news-detail-header">
+            <div class="news-meta-top">
+                <span class="news-date">
+                    <i class="fas fa-calendar"></i> {{ news.created_at.strftime('%d.%m.%Y %H:%M') }}
+                </span>
+                <span class="news-views">
+                    <i class="fas fa-eye"></i> {{ news.views }} просмотров
+                </span>
+            </div>
+            <h1>{{ news.title }}</h1>
+            <div class="news-author-block">
+                <i class="fas fa-user-circle"></i>
+                <span>Автор: <strong>{{ news.author.username }}</strong></span>
+            </div>
+        </div>
+        
+        {% if news.image_url %}
+        <div class="news-detail-image">
+            <img src="{{ news.image_url }}" alt="{{ news.title }}">
+        </div>
+        {% endif %}
+        
+        <div class="news-detail-content">
+            {{ news.content | nl2br }}
+        </div>
+        
+        <div class="news-detail-footer">
+            <a href="{{ url_for('news_list') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> К списку новостей
+            </a>
+            
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('delete_news', id=news.id) }}" 
+               class="btn btn-danger"
+               onclick="return confirm('Удалить новость?')">
+                <i class="fas fa-trash"></i> Удалить
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</article>
+{% endblock %}'''
+
+with open(f"{project_name}/templates/news.html", "w", encoding="utf-8") as f:
+    f.write(news_html)
+
+with open(f"{project_name}/templates/news_detail.html", "w", encoding="utf-8") as f:
+    f.write(news_detail_html)
+
+print("✅ news.html и news_detail.html созданы")
