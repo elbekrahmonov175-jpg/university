@@ -1,0 +1,106 @@
+
+gallery_html = '''{% extends "base.html" %}
+
+{% block title %}Галерея - {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1><i class="fas fa-images"></i> Галерея</h1>
+        <p>Фотографии из жизни института</p>
+    </div>
+</section>
+
+<section class="gallery-section">
+    <div class="container">
+        {% if current_user.is_authenticated %}
+        <div class="gallery-toolbar">
+            <button class="btn btn-primary" onclick="openModal('uploadImageModal')">
+                <i class="fas fa-upload"></i> Загрузить фото
+            </button>
+        </div>
+        {% endif %}
+        
+        {% if images %}
+        <div class="gallery-grid">
+            {% for image in images %}
+            <div class="gallery-item">
+                <div class="gallery-image-wrapper">
+                    <img src="{{ url_for('static', filename='uploads/images/' + image.filename) }}" 
+                         alt="{{ image.caption or 'Фото' }}"
+                         onclick="openLightbox('{{ url_for('static', filename='uploads/images/' + image.filename) }}', '{{ image.caption }}')">
+                    <div class="gallery-overlay">
+                        <div class="gallery-actions">
+                            <button class="btn-icon" onclick="openLightbox('{{ url_for('static', filename='uploads/images/' + image.filename) }}', '{{ image.caption }}')">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            {% if current_user.is_admin %}
+                            <a href="{{ url_for('delete_image', id=image.id) }}" 
+                               class="btn-icon btn-danger"
+                               onclick="return confirm('Удалить это фото?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if image.caption %}
+                <div class="gallery-caption">
+                    <p>{{ image.caption }}</p>
+                    <small>{{ image.uploaded_at.strftime('%d.%m.%Y') }}</small>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-images"></i>
+            <h3>Галерея пуста</h3>
+            <p>Загрузите первое фото!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Модальное окно загрузки -->
+{% if current_user.is_authenticated %}
+<div id="uploadImageModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-upload"></i> Загрузить фото</h2>
+            <button class="close" onclick="closeModal('uploadImageModal')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('upload_image') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Выберите изображение</label>
+                <input type="file" name="image" accept=".png,.jpg,.jpeg,.gif" required>
+                <small class="file-types">JPG, PNG, GIF (макс. 16MB)</small>
+            </div>
+            
+            <div class="form-group">
+                <label>Подпись (опционально)</label>
+                <input type="text" name="caption" placeholder="Описание фотографии" maxlength="200">
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('uploadImageModal')">Отмена</button>
+                <button type="submit" class="btn btn-primary">Загрузить</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-caption" class="lightbox-caption"></div>
+</div>
+{% endblock %}'''
+
+with open(f"{project_name}/templates/gallery.html", "w", encoding="utf-8") as f:
+    f.write(gallery_html)
+
+print("✅ gallery.html создан")
